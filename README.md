@@ -1,28 +1,28 @@
+# Prerequisites
+- vagrant
+- provider
+
 # Work environment setup with Ansible and Vagrant
 
 ## Overview
-localhost -> vagrant up
-ansible control node -> ansible-playbook ... 
-kubernetes cluster :
-- kubemaster
-- kubeworkers
+
+![Architecture Overview](./assets/architecture-overview.png)
+
+For this project, we will need to create a few virtual machines: four of them will make up the k8s cluster (1 master node and 3 workers nodes), while another machine will be used  as the Ansible controller to run our Ansible configuration.
 
 ## Create Linux Virtual Machine automatically with Vagrant
 
-goals: 
-- one "Ansible Control Node" machine from which we run the ansible scripts to configure our "workers" machine
-- see ansible documentation to set the control node
-- multiple machine creation with Vagrantfile
+Vagrant is a tool for automating the creation and management of virtual machines. It relies on providers like VirtualBox to leverage their virtualisation capabilities and simplifies the setup process.
 
-- why automate this ? As we are learning to configure and provision machines we might break things
+We will use a Vagrantfile to define the setup and provisioning details, including virtual machine specifications, networking, and software installations. This configuration file will define our multiple Linux machines, set the SSH communication between them and install all the required software packages to our controller. 
 
-### Setting up the Ansible Control Node
+### Vagrantfile
 
-vagrant file
 
 
 ### Setting up SSH communication between our VMs
 
+To enable SSH communication between the Ansible controller and the virtual machines dedicated to the Kubernetes cluster
 goals:
 - we want to configure our worker01 and worker02 from our nodecontroller with ansible
 - to do this, ansible establishes an SSH communication so let's make sure it is properly configure
@@ -47,4 +47,3 @@ https://developer.hashicorp.com/vagrant/docs/provisioning/ansible_intro
 
 - [Vagrant for beginners, a tutorial](https://dev.to/kennibravo/vagrant-for-beginners-getting-started-with-examples-jlm)
 - [Setting a Kubernetes cluster with Ansible](https://vrukshalitorawane.medium.com/kubernetes-setup-with-wordpress-using-ansible-48dea03dc339)
-

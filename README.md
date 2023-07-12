@@ -4,21 +4,19 @@
 
 # Work environment setup with Ansible and Vagrant
 
-## Overview
+For this project, we will need to create 5 virtual machines: 
+- one VM will be used to run our Ansible configuration (Ansible Controller Node)
+- four VMs will make up the k8s cluster (1 master node and 3 workers nodes)
 
 ![Architecture Overview](./assets/architecture-overview.png)
-
-For this project, we will need to create a few virtual machines: four of them will make up the k8s cluster (1 master node and 3 workers nodes), while another machine will be used  as the Ansible controller to run our Ansible configuration.
 
 ## Create Linux Virtual Machine automatically with Vagrant
 
 Vagrant is a tool for automating the creation and management of virtual machines. It relies on providers like VirtualBox to leverage their virtualisation capabilities and simplifies the setup process.
 
-We will use a Vagrantfile to define the setup and provisioning details, including virtual machine specifications, networking, and software installations. This configuration file will define our multiple Linux machines, set the SSH communication between them and install all the required software packages to our controller. 
+We will use a Vagrantfile to define our multiple Linux machines, set the SSH communication between them and install all the required software packages to our controller. 
 
 ### Vagrantfile
-
-
 
 ### Setting up SSH communication between our VMs
 

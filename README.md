@@ -1,12 +1,12 @@
 # Prerequisites
 
-To run this project you will need Vagrant installed on your host machine.
+To run this project, you will need Vagrant installed on your host machine.
 
 # Setting up our development environment
 
 We used Vagrant to create our development environment for this project. Vagrant helps us automate the creation and provisioning of multiple virtual machines from one configuration file: the *Vagrantfile*.
 
-The overall architecture consists in our host machine and five VMs: one for the Ansible Controller Node and four for the Kubernetes cluster (one master and three workers).
+The overall architecture consists of our host machine and five VMs: one for the Ansible Controller Node and four for the Kubernetes cluster (one master and three workers).
 
 Overview of the architecture
 -
@@ -15,17 +15,17 @@ Overview of the architecture
 
 ## Creating Virtual Machines automatically with Vagrant
 
-Vagrant is a tool for automating the creation and management of virtual machines. It relies on providers like VirtualBox to leverage their virtualisation capabilities and simplifies the setup process.
+Vagrant is a tool for automating the creation and management of virtual machines. It relies on providers like VirtualBox to leverage their virtualization capabilities and simplifies the setup process.
 
 In the Vagrantfile, we define two types of nodes:
-- *controller* nodes refers to the Ansible Control Node
-- *worker* nodes are part of the Kubernetes cluster 
+- *controller* nodes refers to the Ansible Control Node,
+- *worker* nodes are part of the Kubernetes cluster.
 
-Both types of nodes share similar OS distribution, and general resources (cpus, memory, ..) and are configured to be in the same private network. For the controller node, Ansible is installed using a shell provisioner. 
+Both types of nodes share similar OS distribution and general resources such as CPUs and memory. There are also configured to be in the same private network. For the controller node, Ansible is installed using a shell provisioner. 
 
 ## Setting up SSH communication between our VMs
 
-To enable a remote configuration the worker nodes from the controller, we establish SSH communication by sharing the controller's SSH public key to the workers.
+To enable a remote configuration the worker nodes from the controller, we establish SSH communication by sharing the controller's SSH public key with the workers.
 
 We update the controller's script as follows:
 
@@ -54,7 +54,7 @@ node.vm.provision "shell", inline: <<-SHELL
 SHELL
 ```
 
-Finally, on workers' script, we add the controller's public key to their *authorized_keys*:
+Finally, in the workers' script, we add the controller's public key to their *authorized_keys*:
 
 ```bash
 node.vm.provision "shell", inline: <<-SHELL

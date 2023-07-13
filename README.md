@@ -78,6 +78,7 @@ SHELL
 ## Structuring our repository
 
 Before we start configuring our Kubernetes cluster with Ansible, 
+
 ### Folder structure
 
 We followed the directory structure presented in the Vagrant documentation[^1],
@@ -106,7 +107,34 @@ We are ready !
 
 # Configuring a Kubernetes cluster with Ansible
 
+## Ansible configuration file
+
+- we can remove our environment variable in the vagrant file for ansible host
+  key checking
+
 ## Inventory file
+
+cat the file 
+
+make schema of the kubernetes cluster
+
+## Ansible roles
+
+We will create 4 different roles:
+
+- k8s master
+- k8s worker
+- wordpress
+- ec2
+
+```bash
+ansible-galaxy init <role_name>
+```
+## Basic installation
+
+To set up our Kubernetes cluster, let's install Kubernetes on all the worker
+VMs.
+
 ## Kube master
 
 ## Kube workers

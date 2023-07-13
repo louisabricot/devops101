@@ -1,0 +1,11 @@
+- hosts: kubemaster
+  roles:
+    - role: k8s_master
+
+- hosts: kubeworker
+  roles:
+    - role: k8s_worker
+
+- hosts: kubemaster
+  roles:
+    - role: wordpress_mysql

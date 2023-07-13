@@ -1,0 +1,17 @@
+---
+- name: Copies Wordpress files
+  copy:
+   src: "k8s_wordpress"
+   dest: "/root"
+
+- name: Copies Kube StorageClass file
+  template:
+    src: "storage.yml.j2"
+    dest: "/root/k8s_wordpress/storage.yml"
+
+- name: Deploys Wordpress on Kubernetes
+  command: kubectl create -k /root/k8s_wordpress/
+
+- name: Go to this below URL to access WordPress after few seconds
+  debug:
+    msg: http://{{ groups['kubemaster'][0] }}:31000

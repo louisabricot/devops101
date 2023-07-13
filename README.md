@@ -1,12 +1,12 @@
 # Prerequisites
-- vagrant
-- provider
+
+To run this project you will need Vagrant installed on your host machine.
 
 # Work environment setup with Ansible and Vagrant
 
-For this project, we will need to create 5 virtual machines: 
-- one VM will be used to run our Ansible configuration (Ansible Controller Node)
-- four VMs will make up the k8s cluster (1 master node and 3 workers nodes)
+To set up a development environment with Ansible for a Kubernetes cluster, we use Vagrant to create and provision multiple virtual machines. The architecture consists of five VMs: one for the Ansible Controller Node and four for the Kubernetes cluster (one master and three workers)
+
+## Overview of the architecture
 
 ![Architecture Overview](./assets/architecture-overview.png)
 
@@ -14,22 +14,53 @@ For this project, we will need to create 5 virtual machines:
 
 Vagrant is a tool for automating the creation and management of virtual machines. It relies on providers like VirtualBox to leverage their virtualisation capabilities and simplifies the setup process.
 
-We will use a Vagrantfile to define our multiple Linux machines, set the SSH communication between them and install all the required software packages to our controller. 
+We create the VMs using Vagrant and VirtualBox as the provider. The Vagrantfile contains configuration details for each node.  
 
-### Vagrantfile
+```ruby
+```
 
-### Setting up SSH communication between our VMs
+For the controller node, it sets up the VM's resources, hostname, IP address, and port forwarding. Ansible is installed on the controller node using a shell provisioner. For the worker nodes, similar configurations are set up, but Ansible is not installed.
 
-To enable SSH communication between the Ansible controller and the virtual machines dedicated to the Kubernetes cluster
-goals:
-- we want to configure our worker01 and worker02 from our nodecontroller with ansible
-- to do this, ansible establishes an SSH communication so let's make sure it is properly configure
-generating 2048 RSA keys for SSH as per ANSSI guidance
-Warning: this gave me quite a lot of trouble and I am not sure it was the best approach
+#### Setting up SSH communication between our VMs
 
-### Inventory file 
+To enable a remote configuration our worker nodes from our Ansible controller, we establish SSH communication from the controller to the worker nodes by sharing its public key with the workers.
 
-Dynamic creation of inventory file ?
+In the controller's script, we add the following lines to:
+- create a *.ssh* directory
+- change its owner and group to 'vagrant' (as we are running the script as *root*)
+- generate a 4096-bit RSA key (as per ANSSI recommendations :nerd_face:),
+- copy the key on our host machine and finally,
+- we disable Ansible host key checking to keep this setup automated
+
+```bash
+node.vm.provision "shell", inline: <<-SHELL
+  # These lines follow the installation of Ansible
+  mkdir -p /home/vagrant/.ssh
+  chown -R vagrant:vagrant /home/vagrant/.ssh
+  chmod 700 /home/vagrant/.ssh
+  chmod 600 /home/vagrant/.ssh/authorized_keys
+  yes | ssh-keygen -t rsa -b 2048 -f /home/vagrant/.ssh/id_rsa -q -N ""
+  cat /home/vagrant/.ssh/id_rsa.pub > /vagrant/controller#{i}_pubkey
+  echo "export ANSIBLE_HOST_KEY_CHECKING=False" >> /home/vagrant/.bashrc
+  systemctl restart sshd
+SHELL
+```
+
+Finally, on workers' script, we add the controller's public key to their *authorized_keys*:
+
+```bash
+node.vm.provision "shell", inline: <<-SHELL
+  # These lines follow the software update
+  mkdir -p /home/vagrant/.ssh
+  cat /vagrant/controller1_pubkey >> /home/vagrant/.ssh/authorized_keys
+  chown -R vagrant:vagrant /home/vagrant/.ssh
+  chmod 700 /home/vagrant/.ssh
+  chmod 600 /home/vagrant/.ssh/authorized_keys
+  systemctl restart sshd
+SHELL
+```
+
+> **Warning:** This might not be the most secure way but I struggled to find a better strategy and decided to move on to the next step of the project.
 
 ### Meta: Folder structure
 tree .
@@ -38,6 +69,7 @@ https://developer.hashicorp.com/vagrant/docs/provisioning/ansible_intro
 
 ## Configuring our Kubernetes cluster with Ansible
 
+## Inventory file
 ## Kube master
 
 ## Kube workers

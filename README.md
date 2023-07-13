@@ -81,8 +81,7 @@ Before we start configuring our Kubernetes cluster with Ansible,
 
 ### Folder structure
 
-We followed the directory structure presented in the Vagrant documentation[^1],
-namely:
+We followed the directory structure presented in the Vagrant documentation[^1], namely:
 
 ![Tree output](./assets/tree-output.png)
 

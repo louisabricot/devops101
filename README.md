@@ -75,26 +75,6 @@ node.vm.provision "shell", inline: <<-SHELL
 SHELL
 ```
 
-## Structuring our repository
-
-Before we start configuring our Kubernetes cluster with Ansible, 
-
-### Folder structure
-
-We followed the directory structure presented in the Vagrant documentation[^1], namely:
-
-![Tree output](./assets/tree-output.png)
-
-[^1]: https://developer.hashicorp.com/vagrant/docs/provisioning/ansible_intro
-
-### CI/CD ?
-
-- precommit lint and yaml checker
-
-//TODO: see Ansible and Vagrant test modules
-
-### Share folder
-
 To improve our working environment, we share the repository to our controller
 node.
 

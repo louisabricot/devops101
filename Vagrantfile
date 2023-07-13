@@ -1,8 +1,8 @@
-NUM_NODES = 2
+NUM_NODES = 4
 NUM_CONTROLLER_NODE = 1
 IP_NTW = "192.168.56."
 CONTROLLER_IP_START = 2
-NODE_IP_START = 3
+NODE_IP_START = CONTROLLER_IP_START + NUM_CONTROLLER_NODE
 
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/focal64"
@@ -20,10 +20,14 @@ Vagrant.configure("2") do |config|
       node.vm.network "private_network", ip: "#{IP_NTW}#{CONTROLLER_IP_START + i}"
       node.vm.network "forwarded_port", guest: 22, host: "#{2710 + i}"
       node.vm.provision "shell", inline: <<-SHELL
+        
+        # Software update & install Ansible
         add-apt-repository --yes --update ppa:ansible/ansible
         apt-get update
         apt-get install software-properties-common -y
         apt-get install ansible -y
+
+        # Generate SSH public key and copy it on host machine
         mkdir -p /home/vagrant/.ssh
         yes | ssh-keygen -t rsa -b 2048 -f /home/vagrant/.ssh/id_rsa -q -N ""
         chown -R vagrant:vagrant /home/vagrant/.ssh
@@ -37,9 +41,9 @@ Vagrant.configure("2") do |config|
       SHELL
 
        # Synchronize inventory.ini file
-      node.vm.synced_folder ".", "/vagrant"
+      node.vm.synced_folder "./provisioning", "/home/vagrant/workstation"
       node.vm.provision "file", source:
-      "~/my_project/provisioning/inventory.ini", destination: "/home/vagrant/inventory.ini"
+      "./provisioning/inventory.ini", destination: "/home/vagrant/inventory.ini"
     end
   end
 
@@ -57,6 +61,8 @@ Vagrant.configure("2") do |config|
       node.vm.network "forwarded_port", guest: 22, host: "#{2720 + i}"
       node.vm.provision "shell", inline: <<-SHELL
         apt-get update
+
+        # Adds controller public key to worker's authorized_keys
         mkdir -p /home/vagrant/.ssh
         cat /vagrant/controller1_pubkey >> /home/vagrant/.ssh/authorized_keys
         chown -R vagrant:vagrant /home/vagrant/.ssh

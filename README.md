@@ -27,7 +27,7 @@ Both types of nodes share similar OS distribution and general resources such as 
 
 To enable a remote configuration the worker nodes from the controller, we establish SSH communication by sharing the controller's SSH public key with the workers.
 
-We update the controller's script as follows:
+In the controller's script, after the installation of Ansible, we add the following commands:
 
 ```bash
 node.vm.provision "shell", inline: <<-SHELL

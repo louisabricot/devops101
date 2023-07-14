@@ -1,2 +1,9 @@
 ---
 # handlers file for k8s_master
+
+handlers:
+- name: "docker start"
+  service:
+    name: docker
+    state: started
+    enabled: true

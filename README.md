@@ -86,37 +86,17 @@ We are ready !
 
 # Configuring a Kubernetes cluster with Ansible
 
-## Ansible configuration file
+- Define what Ansible is
 
-- we can remove our environment variable in the vagrant file for ansible host
-  key checking
+- Ansible configuration file
+- Ansible inventory
+- Ansible roles
+  - structure of a role
+  - master node
+  - worker node
+  - general setup
 
-## Inventory file
-
-cat the file 
-
-make schema of the kubernetes cluster
-
-## Ansible roles
-
-We will create 4 different roles:
-
-- k8s master
-- k8s worker
-- wordpress
-- ec2
-
-```bash
-ansible-galaxy init <role_name>
-```
-## Basic installation
-
-To set up our Kubernetes cluster, let's install Kubernetes on all the worker
-VMs.
-
-## Kube master
-
-## Kube workers
+# 
 # Resources
 
 - [Vagrant for beginners, a tutorial](https://dev.to/kennibravo/vagrant-for-beginners-getting-started-with-examples-jlm)

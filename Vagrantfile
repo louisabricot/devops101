@@ -1,4 +1,4 @@
-NUM_NODES = 4
+NUM_NODES = 2
 NUM_CONTROLLER_NODE = 1
 IP_NTW = "192.168.56."
 CONTROLLER_IP_START = 2
@@ -64,6 +64,7 @@ Vagrant.configure("2") do |config|
 
         # Adds controller public key to worker's authorized_keys
         mkdir -p /home/vagrant/.ssh
+        yes | ssh-keygen -t rsa -b 2048 -f /home/vagrant/.ssh/id_rsa -q -N ""
         cat /vagrant/controller1_pubkey >> /home/vagrant/.ssh/authorized_keys
         chown -R vagrant:vagrant /home/vagrant/.ssh
         chmod 700 /home/vagrant/.ssh

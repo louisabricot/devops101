@@ -1,11 +1,4 @@
-- hosts: kubemaster
+---
+- hosts: all
   roles:
-    - role: k8s_master
-
-- hosts: kubeworker
-  roles:
-    - role: k8s_worker
-
-- hosts: kubemaster
-  roles:
-    - role: wordpress_mysql
+    - role: "ssh_keys_distribution"

@@ -1,2 +1,16 @@
 ---
-# vars file for k8s_master
+# Packages to be installed for Kubernetes
+pkgs:
+  - kubelet
+  - kubectl
+  - kubeadm
+  - docker
+  - iproute-tc
+ 
+# Services to be started
+services:
+  - kubelet
+  - docker
+ 
+# Path for Docker configuration directory
+docker_daemon: "/etc/docker/daemon.json"

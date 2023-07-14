@@ -1,0 +1,8 @@
+---
+id_rsa_file: "/vagrant/.ssh/id_rsa"
+passphrase: ""
+root_password: "password"
+nodes:
+  - 1.2.3.4
+  - 5.6.7.8
+  - 9.10.11.12

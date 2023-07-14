@@ -36,14 +36,10 @@ Vagrant.configure("2") do |config|
         cat /home/vagrant/.ssh/id_rsa.pub > /vagrant/controller#{i}_pubkey
         systemctl restart sshd
 
-        # Disable Ansible host key checking
-        echo "export ANSIBLE_HOST_KEY_CHECKING=False" >> /home/vagrant/.bashrc
       SHELL
 
        # Synchronize inventory.ini file
       node.vm.synced_folder "./provisioning", "/home/vagrant/workstation"
-      node.vm.provision "file", source:
-      "./provisioning/inventory.ini", destination: "/home/vagrant/inventory.ini"
     end
   end
 
@@ -64,7 +60,6 @@ Vagrant.configure("2") do |config|
 
         # Adds controller public key to worker's authorized_keys
         mkdir -p /home/vagrant/.ssh
-        yes | ssh-keygen -t rsa -b 2048 -f /home/vagrant/.ssh/id_rsa -q -N ""
         cat /vagrant/controller1_pubkey >> /home/vagrant/.ssh/authorized_keys
         chown -R vagrant:vagrant /home/vagrant/.ssh
         chmod 700 /home/vagrant/.ssh

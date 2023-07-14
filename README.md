@@ -31,26 +31,24 @@ In the controller's script, after the installation of Ansible, we add the follow
 
 ```bash
 node.vm.provision "shell", inline: <<-SHELL
-  # These lines follow the installation of Ansible
 
-  # Creates a .ssh directory with proper owner, group and permissions
-  mkdir -p /home/vagrant/.ssh
-  chown -R vagrant:vagrant /home/vagrant/.ssh
-  chmod 700 /home/vagrant/.ssh
-  chmod 600 /home/vagrant/.ssh/authorized_keys
+ # These lines follow the installation of Ansible
 
-  # Generates a 4096-bit RSA key (as per ANSSI recommendations :nerd_face:)
-  yes | ssh-keygen -t rsa -b 2048 -f /home/vagrant/.ssh/id_rsa -q -N ""
+ # Creates .ssh directory with proper owner, group and permissions
+ mkdir -p /home/vagrant/.ssh
+ chown -R vagrant:vagrant /home/vagrant/.ssh
+ chmod 700 /home/vagrant/.ssh
+ chmod 600 /home/vagrant/.ssh/authorized_keys
 
-  # Copies the key on the host machine
-  cat /home/vagrant/.ssh/id_rsa.pub > /vagrant/controller#{i}_pubkey
+ # Generates a 4096-bit RSA key
+ yes | ssh-keygen -t rsa -b 2048 -f /home/vagrant/.ssh/id_rsa -q -N ""
+ 
+ # Copies the key on the host machine
+ cat /home/vagrant/.ssh/id_rsa.pub > /vagrant/controller#{i}_pubkey
 
-  # Disables Ansible host key checking
-  echo "export ANSIBLE_HOST_KEY_CHECKING=False" >> /home/vagrant/.bashrc
-  source /home/vagrant/.bashrc
+ # Restarts the SSH daemon just in case
+ systemctl restart sshd
 
-  # Restarts SSH daemon just in case
-  systemctl restart sshd
 SHELL
 ```
 
@@ -70,7 +68,7 @@ node.vm.provision "shell", inline: <<-SHELL
   chmod 700 /home/vagrant/.ssh
   chmod 600 /home/vagrant/.ssh/authorized_keys
 
-  # Restarts SSH daemon just in case
+  # Restarts the SSH daemon just in case
   systemctl restart sshd
 SHELL
 ```

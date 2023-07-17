@@ -36,6 +36,17 @@ Vagrant.configure("2") do |config|
         cat /home/vagrant/.ssh/id_rsa.pub > /vagrant/controller#{i}_pubkey
         systemctl restart sshd
 
+        # Generate inventory file
+        echo "[kubemasters]" > /home/vagrant/workstation/inventory.ini
+        for i in {1..1}
+        do
+            echo "kubemaster$i 192.168.56.$(( 3 + $i ))" >> /home/vagrant/workstation/inventory.ini
+        done
+        echo "[kubeworkers]" >> /home/vagrant/workstation/inventory.ini
+        for i in {2..2}
+        do
+            echo "kubeworker$(( $i - 1)) 192.168.56.$(( 3 + $i ))" >> /home/vagrant/workstation/inventory.ini
+            done
       SHELL
 
        # Synchronize inventory.ini file
@@ -65,6 +76,7 @@ Vagrant.configure("2") do |config|
         chmod 700 /home/vagrant/.ssh
         chmod 600 /home/vagrant/.ssh/authorized_keys
         systemctl restart sshd
+
       SHELL
     end
   end

@@ -40,12 +40,12 @@ Vagrant.configure("2") do |config|
         echo "[kubemasters]" > /home/vagrant/workstation/inventory.ini
         for i in {1..1}
         do
-            echo "kubemaster$i 192.168.56.$(( 3 + $i ))" >> /home/vagrant/workstation/inventory.ini
+            echo "kubemaster$i ansible_host=192.168.56.$(( 3 + $i ))" >> /home/vagrant/workstation/inventory.ini
         done
         echo "[kubeworkers]" >> /home/vagrant/workstation/inventory.ini
         for i in {2..2}
         do
-            echo "kubeworker$(( $i - 1)) 192.168.56.$(( 3 + $i ))" >> /home/vagrant/workstation/inventory.ini
+            echo "kubeworker$(( $i - 1)) ansible_host=192.168.56.$(( 3 + $i ))" >> /home/vagrant/workstation/inventory.ini
             done
       SHELL
 

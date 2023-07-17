@@ -14,3 +14,4 @@ services:
  
 # Path for Docker configuration directory
 docker_daemon: "/etc/docker/daemon.json"
+kubemaster_ip: 192.168.56.4

@@ -1,0 +1,6 @@
+- hosts: [kubemasters]
+  roles:
+  - role: k8s_master
+- hosts: [kubeworkers]
+  roles:
+  - role: k8s_worker

@@ -73,7 +73,7 @@
 - name: Configure node ip
   lineinfile:
     path: /usr/bin/kubelet
-    line: KUBELET_EXTRA_ARGS=--node-ip={{ kubemaster_ip }}
+    line: KUBELET_EXTRA_ARGS=--node-ip={{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}
 
 - name: Restart kubelet
   service:
@@ -82,24 +82,8 @@
     state: restarted
     enabled: true
 
-- name: Initialize the Kubernetes cluster using kubeadm
-  command: kubeadm init --apiserver-advertise-address={{ kubemaster_ip }} --apiserver-cert-extra-sans={{ kubemaster_ip}} --node-name kubemaster --pod-network-cidr=192.168.0.0/16
- 
+- name: Copy the join command to server location
+  copy: src=join-command dest=join-command.sh mode=0777
 
-- name: Setup kubeconfig for vagrant user
-  command: "{{ item }}"
-  with_items:
-    - mkdir -p /home/vagrant/.kube
-    - cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
-    - chown vagrant:vagrant /home/vagrant/.kube/config
-
-- name: Install calico pod network
-  become: false
-  command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
-
-- name: Generate join command
-  command: kubeadm token create --print-join-command
-  register: join_command
-
-- name: Copy join command to local file
-  local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+- name: Join the node to cluster
+  command: sh join-command.sh

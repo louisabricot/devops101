@@ -1,14 +1,14 @@
 ---
 # handlers file for k8s_master
 
-- name: "docker start"
-  service:
+- name: "Start Docker"
+  ansible.builtin.service:
     name: docker
     state: started
     enabled: true
 
-- name: "restart containerd"
-  service:
+- name: "Restart Containerd"
+  ansible.builtin.service:
     name: containerd
     state: restarted
     enabled: true

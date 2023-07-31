@@ -21,7 +21,7 @@ In the Vagrantfile, we define two types of nodes:
 - *controller* nodes refers to the Ansible Control Node,
 - *worker* nodes are part of the Kubernetes cluster.
 
-Both types of nodes share similar OS distribution and general resources such as CPUs and memory. There are also configured to be in the same private network. For the controller node, Ansible is installed using a shell provisioner. 
+Both types of nodes share similar OS distribution and general resources such as CPUs and memory. There are also configured to be in the same private network. For the controller node, Ansible is installed using a shell provisioner.
 
 ## Setting up SSH communication between our VMs
 
@@ -42,7 +42,7 @@ node.vm.provision "shell", inline: <<-SHELL
 
  # Generates a 4096-bit RSA key
  yes | ssh-keygen -t rsa -b 2048 -f /home/vagrant/.ssh/id_rsa -q -N ""
- 
+
  # Copies the key on the host machine
  cat /home/vagrant/.ssh/id_rsa.pub > /vagrant/controller#{i}_pubkey
 
@@ -127,8 +127,11 @@ With this inventory file, you can now target the *kubemasters* and *kubeworkers*
 
 Ansible roles organize and package automation tasks, variables, and configurations into a reusable unit, streamlining the management and deployment of complex automation tasks across different projects and environments.
 
+<<<<<<< HEAD
+=======
+#
+>>>>>>> 96d1578 (Need to go)
 # Resources
 
 - [Vagrant for beginners, a tutorial](https://dev.to/kennibravo/vagrant-for-beginners-getting-started-with-examples-jlm)
 - [Setting a Kubernetes cluster with Ansible](https://vrukshalitorawane.medium.com/kubernetes-setup-with-wordpress-using-ansible-48dea03dc339)
-

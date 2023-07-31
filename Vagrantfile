@@ -6,7 +6,7 @@ NODE_IP_START = CONTROLLER_IP_START + NUM_CONTROLLER_NODE
 
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/focal64"
-  
+
   # Controller Nodes
   (1..NUM_CONTROLLER_NODE).each do |i|
     config.vm.define "controller#{i}" do |node|
@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
       node.vm.network "private_network", ip: "#{IP_NTW}#{CONTROLLER_IP_START + i}"
       node.vm.network "forwarded_port", guest: 22, host: "#{2710 + i}"
       node.vm.provision "shell", inline: <<-SHELL
-        
+
         # Software update & install Ansible
         add-apt-repository --yes --update ppa:ansible/ansible
         apt-get update
@@ -43,7 +43,7 @@ Vagrant.configure("2") do |config|
             echo "kubemaster$i ansible_host=192.168.56.$(( 3 + $i ))" >> /home/vagrant/workstation/inventory.ini
         done
         echo "[kubeworkers]" >> /home/vagrant/workstation/inventory.ini
-        for i in {2..2}
+        for i in {2..#{NUM_NODES}}
         do
             echo "kubeworker$(( $i - 1)) ansible_host=192.168.56.$(( 3 + $i ))" >> /home/vagrant/workstation/inventory.ini
             done

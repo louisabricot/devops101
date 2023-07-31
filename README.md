@@ -29,7 +29,7 @@ To enable a remote configuration the worker nodes from the controller, we establ
 
 In the controller's script, after the installation of Ansible, we add the following commands:
 
-```bash
+```ruby
 node.vm.provision "shell", inline: <<-SHELL
 
  # These lines follow the installation of Ansible
@@ -54,7 +54,7 @@ SHELL
 
 Finally, in the workers' script, we add the controller's public key to their *authorized_keys*:
 
-```bash
+```ruby
 node.vm.provision "shell", inline: <<-SHELL
   # These lines follow the software update
 
@@ -84,17 +84,49 @@ We are ready !
 
 # Configuring a Kubernetes cluster with Ansible
 
-- Define what Ansible is
+Ansible is an open-source automation tool that allows us to efficiently configure, manage, and deploy applications and infrastructure.
 
-- Ansible configuration file
-- Ansible inventory
-- Ansible roles
-  - structure of a role
-  - master node
-  - worker node
-  - general setup
+## Ansible configuration file
 
-# 
+Overall, this configuration file customizes Ansible's behavior by specifying the inventory file path, setting default options for SSH connections and privilege escalation, making the automation process more efficient and suitable for our environment.
+
+```bash
+# ansible.cfg
+[defaults]
+inventory=/home/vagrant/inventory.ini            # Specify the location of the inventory file
+host_key_checking=False                          # Disable confirmation prompt during remote host connection
+ask_pass=False                                   # Disable password authentification
+remote_user=vagrant                              # Set default remote user to "vagrant"
+
+[privilege_escalation]
+become=True                                      # Enable privilege escalation
+become_method=sudo                               # Specify privilege escalation method to "sudo"
+become_user=root                                 # Set superuser to "root"
+become_ask_pass=False                            # Disable password authentication for root
+```
+
+## Ansible inventory file
+An Ansible inventory file is a text file that contains a list of hosts and groups that Ansible can target and manage during playbook execution.
+This inventory file defines two groups:
+- *kubemasters* refer to VMs assuming the role of a Kubernetes master node,
+- *kubeworkers* refer to VMs assuming the role of a Kubernetes worker node.
+
+```bash
+# inventory.ini
+[kubemasters]
+kubemaster1 ansible_host=192.168.56.4
+[kubeworkers]
+kubeworker1 ansible_host=192.168.56.5
+```
+
+In our [Vagrantfile](./Vagrantfile), we dynamically generate the Ansible inventory file, ensuring it always contains the IP addresses of the virtual machines created by Vagrant, regardless of whether we provision 3 or 7 nodes.
+
+With this inventory file, you can now target the *kubemasters* and *kubeworkers* groups in your Ansible playbooks, making it easy to manage and configure your Kubernetes cluster components separately.
+
+## Roles
+
+Ansible roles organize and package automation tasks, variables, and configurations into a reusable unit, streamlining the management and deployment of complex automation tasks across different projects and environments.
+
 # Resources
 
 - [Vagrant for beginners, a tutorial](https://dev.to/kennibravo/vagrant-for-beginners-getting-started-with-examples-jlm)

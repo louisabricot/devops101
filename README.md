@@ -127,10 +127,6 @@ With this inventory file, you can now target the *kubemasters* and *kubeworkers*
 
 Ansible roles organize and package automation tasks, variables, and configurations into a reusable unit, streamlining the management and deployment of complex automation tasks across different projects and environments.
 
-<<<<<<< HEAD
-=======
-#
->>>>>>> 96d1578 (Need to go)
 # Resources
 
 - [Vagrant for beginners, a tutorial](https://dev.to/kennibravo/vagrant-for-beginners-getting-started-with-examples-jlm)

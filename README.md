@@ -8,7 +8,7 @@
 3. [Configuring a Kubernetes Cluster with Ansible](#configuring-a-kubernetes-cluster-with-ansible)
     - [Ansible Configuration File (ansible.cfg)](#ansible-configuration-file)
     - [Ansible Inventory File (inventory.ini)](#ansible-inventory-file)
-4. [Utilizing Ansible Roles](#utilizing-ansible-roles)
+    - [Utilizing Ansible Roles](#utilizing-ansible-roles)
 
 
 ## Prerequisites
@@ -146,7 +146,11 @@ Ansible roles organize and package automation tasks, variables, and configuratio
 
 To start, we define two roles, corresponding to our inventory groups:
 - *kubemaster* installs Docker, configure Kubernetes core components, Calico network, and generates the join command for worker nodes to join the cluster.
-- *kubeworker* 
+- *kubeworker* installs Docker and joins the worker nodes to the Kubernetes cluster.
+
+#### Kubemaster role
+
+#### Kubeworker role
 
 
 ## Resources

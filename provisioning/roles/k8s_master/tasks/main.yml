@@ -8,15 +8,9 @@
 - name: Kubernetes setup
   include_tasks: kubernetes_setup.yml
 
-- name: Calico setup
+- name: Calico network setup
   include_tasks: calico_setup.yml
 
-- name: Generate join command
-  ansible.builtin.command: kubeadm token create --print-join-command
-  register: join_command
+- name: Generate join command and copy to local file
+  include_tasks: join_command.yml
 
-- name: Copy join command to local file
-  delegate_to: localhost
-  ansible.builtin.copy:
-    content: "{{ join_command.stdout_lines[0] }}"
-    dest: "./join-command"

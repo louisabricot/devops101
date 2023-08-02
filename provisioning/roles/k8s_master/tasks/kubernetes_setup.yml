@@ -49,10 +49,10 @@
     --node-name kubemaster
     --pod-network-cidr=192.168.0.0/16
   register: cluster_status
-  until: cluster_status.stdout.find("Your Kubernetes master has initialized successfully!") != -1
+  until: cluster_status.rc == 0
   retries: 1
-  delay: 60
-  changed_when: cluster_status.stdout.find("Your Kubernetes master has initialized successfully!") == -1
+  delay: 20
+  changed_when: cluster_status.rc == 0
 
 - name: kubernetes_setup | Create .kube directory
   ansible.builtin.file:
@@ -75,5 +75,4 @@
     owner: vagrant
     group: vagrant
     remote_src: true
-    owner: vagrant
   when: k8s_conf.stat.exists

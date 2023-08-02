@@ -1,0 +1,30 @@
+---
+- name: kubernetes_setup | Add Kubernetes GPG key
+  ansible.builtin.apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: kubernetes_setup | Add Kubernetes repository
+  ansible.builtin.apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+
+- name: kubernetes_setup | Install Kubernetes
+  ansible.builtin.apt:
+    pkg:
+      - kubeadm
+      - kubelet
+      - kubectl
+    update_cache: true
+
+- name: kubernetes_setup | Fix CRI error
+  ansible.builtin.file:
+    path: /etc/containerd/config.toml
+    state: absent
+
+- name: kubernetes_setup | Restart containerd
+  ansible.builtin.service:
+    name: containerd
+    daemon_reload: true
+    state: restarted
+    enabled: true

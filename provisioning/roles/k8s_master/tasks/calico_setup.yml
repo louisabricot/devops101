@@ -8,4 +8,3 @@
   register: calico_status
   failed_when: calico_status.rc != 0
   changed_when: true
-

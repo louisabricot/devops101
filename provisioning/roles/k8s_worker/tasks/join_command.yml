@@ -1,0 +1,9 @@
+---
+- name: join_command | Copy the join command to server location
+  ansible.builtin.copy:
+    src: join-command
+    dest: join-command.sh
+    mode: 0777
+
+- name: Join the node to cluster
+  ansible.builtin.command: sh join-command.sh

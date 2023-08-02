@@ -1,0 +1,13 @@
+---
+- name: configure_node | Configure node ip
+  ansible.builtin.lineinfile:
+    path: /usr/bin/kubelet
+    line: KUBELET_EXTRA_ARGS=--node-ip={{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}
+
+- name: configure_node | Restart kubelet
+  ansible.builtin.service:
+    name: kubelet
+    daemon_reload: true
+    state: restarted
+    enabled: true
+

@@ -1,0 +1,48 @@
+---
+- name: init_kubernetes_cluster | Configure node ip
+  ansible.builtin.lineinfile:
+    path: /usr/bin/kubelet
+    line: KUBELET_EXTRA_ARGS=--node-ip={{ kubemaster_ip }}
+
+- name: init_kubernetes_cluster | Restart kubelet
+  ansible.builtin.service:
+    name: kubelet
+    daemon_reload: true
+    state: restarted
+    enabled: true
+
+- name: init_kubernetes_cluster | Initialize the Kubernetes cluster using kubeadm
+  ansible.builtin.command: >-
+    kubeadm init
+    --apiserver-advertise-address={{ kubemaster_ip }}
+    --apiserver-cert-extra-sans={{ kubemaster_ip }}
+    --node-name kubemaster
+    --pod-network-cidr=192.168.0.0/16
+  register: cluster_status
+  until: cluster_status.rc == 0
+  retries: 1
+  delay: 20
+  changed_when: cluster_status.rc == 0
+
+- name: init_kubernetes_cluster | Create .kube directory
+  ansible.builtin.file:
+    path: /home/vagrant/.kube
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+
+- name: init_kubernetes_cluster | Check admin.conf exists
+  ansible.builtin.stat:
+    path: /etc/kubernetes/admin.conf
+  register: k8s_conf
+
+- name: init_kubernetes_cluster | Copy kube config to .kube
+  ansible.builtin.copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/vagrant/.kube/config
+    mode: '0644'
+    owner: vagrant
+    group: vagrant
+    remote_src: true
+  when: k8s_conf.stat.exists

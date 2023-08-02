@@ -1,89 +1,16 @@
 ---
-- name: Disable swap
-  shell: swapoff -a
+- name: Setup Docker
+  include_role:
+    name: common
+    tasks_from: docker_setup
 
-- name: Docker dependencies Installation
-  apt:
-    pkg:
-      - apt-transport-https
-      - ca-certificates
-      - software-properties-common
-      - python3-pip
-      - virtualenv
-      - python3-setuptools
-    state: latest
-    update_cache: true
-
-- name: Add Docker GPG key
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
-
-- name: Add Docker repository
-  apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
-    state: present
-
-- name: Update apt and install docker-ce
-  apt:
-    name: docker-ce
-    state: present
-    update_cache: true
-
-- name: Install Docker Module for Python
-  pip:
-    name: docker
-
-- name: Add vagrant user to docker group
-  user:
-    name: vagrant
-    group: docker
-
-- name: Add Kubernetes GPG key
-  apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    state: present
-
-- name: Add Kubernetes repository
-  apt_repository:
-    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
-    state: present
-
-- name: Install Kubernetes
-  apt:
-    name: "{{ item }}"
-    state: present
-    update_cache: true
-  with_items:
-    - kubeadm
-    - kubelet
-    - kubectl
-- name: Fix CRI error
-  file:
-    path: /etc/containerd/config.toml
-    state: absent
-
-- name: Restart containerd
-  service:
-    name: containerd
-    daemon_reload: true
-    state: restarted
-    enabled: true
+- name: Setup Kubernetes
+  include_role:
+    name: common
+    tasks_from: kubernetes_setup
 
 - name: Configure node ip
-  lineinfile:
-    path: /usr/bin/kubelet
-    line: KUBELET_EXTRA_ARGS=--node-ip={{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}
+  include_tasks: configure_node.yml
 
-- name: Restart kubelet
-  service:
-    name: kubelet
-    daemon_reload: true
-    state: restarted
-    enabled: true
-
-- name: Copy the join command to server location
-  copy: src=join-command dest=join-command.sh mode=0777
-
-- name: Join the node to cluster
-  command: sh join-command.sh
+- name: Join command
+  include_tasks: join_command.yml

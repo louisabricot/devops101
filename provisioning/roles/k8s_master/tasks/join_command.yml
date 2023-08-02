@@ -8,5 +8,6 @@
 - name: join_command | Copy join_command to local file
   delegate_to: localhost
   ansible.builtin.copy:
-  content: "{{ join_command.stdout_lines[0] }}"
+    content: "{{ join_command.stdout_lines[0] }}"
     dest: "./join-command"
+    mode: O777

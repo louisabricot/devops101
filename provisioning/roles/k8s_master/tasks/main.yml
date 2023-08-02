@@ -1,16 +1,19 @@
 ---
-- name: Disable swap
-  include_tasks: disable_swap.yml
+- name: Setup Docker
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: docker_setup
 
-- name: Docker setup
-  include_tasks: docker_setup.yml
+- name: Setup Kubernetes
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: kubernetes_setup
 
-- name: Kubernetes setup
-  include_tasks: kubernetes_setup.yml
+- name: Initialize Kubernetes cluster
+  ansible.builtin.include_tasks: init_kubernetes_cluster.yml
 
 - name: Calico network setup
-  include_tasks: calico_setup.yml
+  ansible.builtin.include_tasks: calico_setup.yml
 
 - name: Generate join command and copy to local file
-  include_tasks: join_command.yml
-
+  ansible.builtin.include_tasks: join_command.yml

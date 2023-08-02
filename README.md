@@ -1,19 +1,37 @@
-# Prerequisites
+# Automated Kubernetes Cluster Setup using Vagrant and Ansible
 
-To run this project, you will need Vagrant installed on your host machine.
+## Table of Contents
 
-# Setting up our development environment
+1. [Prerequisites](#prerequisites)
+2. [Setting up the Development Environment](#setting-up-the-development-environment)
+3. [Automatically Creating Virtual Machines with Vagrant](#automatically-creating-virtual-machines-with-vagrant)
+3. [Configuring a Kubernetes Cluster with Ansible](#configuring-a-kubernetes-cluster-with-ansible)
+    - [Ansible Configuration File (ansible.cfg)](#ansible-configuration-file)
+    - [Ansible Inventory File (inventory.ini)](#ansible-inventory-file)
+4. [Utilizing Ansible Roles](#utilizing-ansible-roles)
+
+
+## Prerequisites
+
+Before proceeding with the setup, ensure you have the following prerequisites on your host machine:
+- **Vagrant** installed: Vagrant helps automate the creation and provisioning of virtual machines.
+- **VirtualBox** (or any other Vagrant provider) installed for virtualization capabilities.
+
+## Setting up the development environment
 
 We used Vagrant to create our development environment for this project. Vagrant helps us automate the creation and provisioning of multiple virtual machines from one configuration file: the *Vagrantfile*.
 
 The overall architecture consists of our host machine and five VMs: one for the Ansible Controller Node and four for the Kubernetes cluster (one master and three workers).
 
-Overview of the architecture
--
+### Architecture Overview
+
+The architecture of our setup involves the host machine and five virtual machines:
+- Ansible Controller Node (1 VM)
+- Kubernetes Cluster (1 Master Node and 3 Worker Nodes)
 
 ![Overview of the architecture](./assets/architecture-overview.png)
 
-## Creating Virtual Machines automatically with Vagrant
+## Automatically Creating Virtual Machines with Vagrant
 
 Vagrant is a tool for automating the creation and management of virtual machines. It relies on providers like VirtualBox to leverage their virtualization capabilities and simplifies the setup process.
 
@@ -21,15 +39,18 @@ In the Vagrantfile, we define two types of nodes:
 - *controller* nodes refers to the Ansible Control Node,
 - *worker* nodes are part of the Kubernetes cluster.
 
-Both types of nodes share similar OS distribution and general resources such as CPUs and memory. There are also configured to be in the same private network. For the controller node, Ansible is installed using a shell provisioner.
+Both types of nodes share similar OS distribution and general resources such as CPUs and memory. Additionally, they are configured to be in the same private network to facilitate communication. For the controller node, Ansible is installed using a shell provisioner.
 
-## Setting up SSH communication between our VMs
+### Setting up SSH communication between our VMs
 
-To enable a remote configuration the worker nodes from the controller, we establish SSH communication by sharing the controller's SSH public key with the workers.
+To set up SSH communication between the VMs, we ensure the controller's SSH public key is shared with the worker nodes. This allows the controller to remotely configure the worker nodes.
 
-In the controller's script, after the installation of Ansible, we add the following commands:
+The following snippets illustrate the SSH setup process in the Vagrantfile:
+
+#### Controller node
 
 ```ruby
+# Vagrantfile
 node.vm.provision "shell", inline: <<-SHELL
 
  # These lines follow the installation of Ansible
@@ -52,9 +73,12 @@ node.vm.provision "shell", inline: <<-SHELL
 SHELL
 ```
 
+#### Worker nodes
+
 Finally, in the workers' script, we add the controller's public key to their *authorized_keys*:
 
 ```ruby
+# Vagrantfile
 node.vm.provision "shell", inline: <<-SHELL
   # These lines follow the software update
 
@@ -73,22 +97,19 @@ node.vm.provision "shell", inline: <<-SHELL
 SHELL
 ```
 
-To improve our working environment, we share the repository to our controller
-node.
+To enhance our working environment, we share the project's repository with our controller
+node:
 
 ```ruby
 node.vm.synced_folder "./provisioning", "/home/vagrant/workstation"
 ```
+By synchronizing the "provisioning" directory with "/home/vagrant/workstation" on the controller node, we can easily access and manage our Ansible playbooks and configuration files.
 
-We are ready !
+## Configuring a Kubernetes cluster with Ansible
 
-# Configuring a Kubernetes cluster with Ansible
+Ansible is an open-source automation tool that efficiently configures, manages, and deploys applications and infrastructure. To customize Ansible's behavior, we use configuration files.
 
-Ansible is an open-source automation tool that allows us to efficiently configure, manage, and deploy applications and infrastructure.
-
-## Ansible configuration file
-
-Overall, this configuration file customizes Ansible's behavior by specifying the inventory file path, setting default options for SSH connections and privilege escalation, making the automation process more efficient and suitable for our environment.
+### Ansible configuration file
 
 ```bash
 # ansible.cfg
@@ -105,11 +126,9 @@ become_user=root                                 # Set superuser to "root"
 become_ask_pass=False                            # Disable password authentication for root
 ```
 
-## Ansible inventory file
-An Ansible inventory file is a text file that contains a list of hosts and groups that Ansible can target and manage during playbook execution.
-This inventory file defines two groups:
-- *kubemasters* refer to VMs assuming the role of a Kubernetes master node,
-- *kubeworkers* refer to VMs assuming the role of a Kubernetes worker node.
+### Ansible inventory file
+
+The inventory file specifies the hosts and groups that Ansible will manage during playbook execution. We dynamically generate this file in the [Vagrantfile](./Vagrantfile) to ensure it always contains the IP addresses of the virtual machines, irrespective of the number of nodes provisioned.
 
 ```bash
 # inventory.ini
@@ -117,13 +136,11 @@ This inventory file defines two groups:
 kubemaster1 ansible_host=192.168.56.4
 [kubeworkers]
 kubeworker1 ansible_host=192.168.56.5
+kubeworker2 ansible_host=192.168.56.6
+kubeworker3 ansible_host=192.168.56.7
 ```
 
-In our [Vagrantfile](./Vagrantfile), we dynamically generate the Ansible inventory file, ensuring it always contains the IP addresses of the virtual machines created by Vagrant, regardless of whether we provision 3 or 7 nodes.
-
-With this inventory file, you can now target the *kubemasters* and *kubeworkers* groups in your Ansible playbooks, making it easy to manage and configure your Kubernetes cluster components separately.
-
-## Roles
+### Utilizing Ansible Roles
 
 Ansible roles organize and package automation tasks, variables, and configurations into a reusable unit. By breaking down the Kubernetes cluster setup into roles, it becomes easier to manage and update specific components or configurations independently, promoting consistency and simplifying deployment across different environments.
 
@@ -132,7 +149,7 @@ To start, we define two roles, corresponding to our inventory groups:
 - *kubeworker* 
 
 
-# Resources
+## Resources
 
 - [Vagrant for beginners, a tutorial](https://dev.to/kennibravo/vagrant-for-beginners-getting-started-with-examples-jlm)
 - [Setting a Kubernetes cluster with Ansible](https://vrukshalitorawane.medium.com/kubernetes-setup-with-wordpress-using-ansible-48dea03dc339)

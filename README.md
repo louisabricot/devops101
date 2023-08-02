@@ -125,7 +125,12 @@ With this inventory file, you can now target the *kubemasters* and *kubeworkers*
 
 ## Roles
 
-Ansible roles organize and package automation tasks, variables, and configurations into a reusable unit, streamlining the management and deployment of complex automation tasks across different projects and environments.
+Ansible roles organize and package automation tasks, variables, and configurations into a reusable unit. By breaking down the Kubernetes cluster setup into roles, it becomes easier to manage and update specific components or configurations independently, promoting consistency and simplifying deployment across different environments.
+
+To start, we define two roles, corresponding to our inventory groups:
+- *kubemaster* installs Docker, configure Kubernetes core components, Calico network, and generates the join command for worker nodes to join the cluster.
+- *kubeworker* 
+
 
 # Resources
 

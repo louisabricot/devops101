@@ -111,7 +111,7 @@ Ansible is an open-source automation tool that efficiently configures, manages, 
 
 ### Ansible configuration file
 
-```bash
+```cfg
 # ansible.cfg
 [defaults]
 inventory=/home/vagrant/inventory.ini            # Specify the location of the inventory file
@@ -130,7 +130,7 @@ become_ask_pass=False                            # Disable password authenticati
 
 The inventory file specifies the hosts and groups that Ansible will manage during playbook execution. We dynamically generate this file in the [Vagrantfile](./Vagrantfile) to ensure it always contains the IP addresses of the virtual machines, irrespective of the number of nodes provisioned.
 
-```bash
+```ini
 # inventory.ini
 [kubemasters]
 kubemaster1 ansible_host=192.168.56.4
@@ -148,10 +148,62 @@ To start, we define two roles, corresponding to our inventory groups:
 - *kubemaster* installs Docker, configure Kubernetes core components, Calico network, and generates the join command for worker nodes to join the cluster.
 - *kubeworker* installs Docker and joins the worker nodes to the Kubernetes cluster.
 
-#### Kubemaster role
+```markdown
+.
+├── common_tasks
+├── k8s_master
+└── k8s_worker
+```
+The *common_tasks* directory will store tasks that are common to both kubemaster and kubeworker roles.
+
+#### Kubemaster Role Structure:
+
+We begin by generating the Kubemaster role using the ```ansible-galaxy init``` command, which sets up the following folder structure. We will add our tasks to the *tasks* directory.
+
+The tasks/main.yml file orchestrates the different subtasks in the following order:
+
+```markdown
+---
+- name: Setup Docker
+  include_role:
+    name: common
+    tasks_from: docker_setup
+
+- name: Setup Kubernetes
+  include_role:
+    name: common
+    tasks_from: kubernetes_setup
+
+- name: Initialize Kubernetes cluster
+  include_tasks: init_kubernetes_cluster.yml
+
+- name: Calico network setup
+  include_tasks: calico_setup.yml
+
+- name: Generate join command and copy to local file
+  include_tasks: join_command.yml
+```
 
 #### Kubeworker role
 
+```markdown
+---
+- name: Setup Docker
+  include_role:
+    name: common
+    tasks_from: docker_setup
+
+- name: Setup Kubernetes
+  include_role:
+    name: common
+    tasks_from: kubernetes_setup
+
+- name: Configure node ip
+  include_tasks: configure_node.yml
+
+- name: Join command
+  include_tasks: join_command.yml
+```
 
 ## Resources
 

@@ -1,0 +1,79 @@
+---
+- name: kubernetes_setup | Add Kubernetes GPG key
+  ansible.builtin.apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: kubernetes_setup | Add Kubernetes repository
+  ansible.builtin.apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+
+- name: kubernetes_setup | Install Kubernetes
+  ansible.builtin.apt:
+    pkg:
+      - kubeadm
+      - kubelet
+      - kubectl
+    update_cache: true
+
+- name: kubernetes_setup | Fix CRI error
+  ansible.builtin.file:
+    path: /etc/containerd/config.toml
+    state: absent
+
+- name: kubernetes_setup | Restart containerd
+  ansible.builtin.service:
+    name: containerd
+    daemon_reload: true
+    state: restarted
+    enabled: true
+
+- name: kubernetes_setup | Configure node ip
+  ansible.builtin.lineinfile:
+    path: /usr/bin/kubelet
+    line: KUBELET_EXTRA_ARGS=--node-ip={{ kubemaster_ip }}
+
+- name: kubernetes_setup | Restart kubelet
+  ansible.builtin.service:
+    name: kubelet
+    daemon_reload: true
+    state: restarted
+    enabled: true
+
+- name: kubernetes_setup | Initialize the Kubernetes cluster using kubeadm
+  ansible.builtin.command: >-
+    kubeadm init
+    --apiserver-advertise-address={{ kubemaster_ip }}
+    --apiserver-cert-extra-sans={{ kubemaster_ip }}
+    --node-name kubemaster
+    --pod-network-cidr=192.168.0.0/16
+  register: cluster_status
+  until: cluster_status.stdout.find("Your Kubernetes master has initialized successfully!") != -1
+  retries: 1
+  delay: 60
+  changed_when: cluster_status.stdout.find("Your Kubernetes master has initialized successfully!") == -1
+
+- name: kubernetes_setup | Create .kube directory
+  ansible.builtin.file:
+    path: /home/vagrant/.kube
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+
+- name: kubernetes_setup | Check admin.conf exists
+  ansible.builtin.stat:
+    path: /etc/kubernetes/admin.conf
+  register: k8s_conf
+
+- name: kubernetes_setup | Copy kube config to .kube
+  ansible.builtin.copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/vagrant/.kube/config
+    mode: '0644'
+    owner: vagrant
+    group: vagrant
+    remote_src: true
+    owner: vagrant
+  when: k8s_conf.stat.exists

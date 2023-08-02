@@ -1,0 +1,14 @@
+---
+- name: disable_swap | Disable SWAP for Kubernetes setup
+  ansible.builtin.command: swapoff -a
+  register: swap_status
+  failed_when: swap_status != 0
+  changed_when: true
+  become: true
+
+- name: disable_swap | Disable SWAP persisting reboot
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
+    replace: '#\1\2\3swap\4'
+    backup: true

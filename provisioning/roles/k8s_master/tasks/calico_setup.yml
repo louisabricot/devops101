@@ -1,0 +1,13 @@
+---
+- name: calico_setup | Install calico pod network
+  become: true
+  ansible.builtin.command: "{{ item }}"
+  with_items:
+    - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
+    - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml
+  register: calico_status
+  changed_when: calico_status.stdout_lines | map('AlreadyExists') | list | count == 0
+
+- name: calico_setup | Wait for object to be created
+  ansible.builtin.pause:
+    seconds: 30

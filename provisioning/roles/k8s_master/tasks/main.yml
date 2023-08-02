@@ -1,116 +1,15 @@
 ---
 - name: Disable swap
-  ansible.builtin.shell: |
-    swapoff -a
+  include_tasks: disable_swap.yml
 
-- name: Docker dependencies Installation
-  ansible.builtin.apt:
-    pkg:
-      - apt-transport-https
-      - ca-certificates
-      - software-properties-common
-      - python3-pip
-      - virtualenv
-      - python3-setuptools
-    update_cache: true
+- name: Docker setup
+  include_tasks: docker_setup.yml
 
-- name: Add Docker GPG key
-  ansible.builtin.apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
+- name: Kubernetes setup
+  include_tasks: kubernetes_setup.yml
 
-- name: Add Docker repository
-  ansible.builtin.apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
-    state: present
-
-- name: Update apt and install docker-ce
-  ansible.builtin.apt:
-    name: docker-ce
-    state: present
-    update_cache: true
-
-- name: Install Docker Module for Python
-  ansible.builtin.pip:
-    name: docker
-
-- name: Add vagrant user to docker group
-  ansible.builtin.user:
-    name: vagrant
-    group: docker
-
-- name: Add Kubernetes GPG key
-  ansible.builtin.apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    state: present
-
-- name: Add Kubernetes repository
-  ansible.builtin.apt_repository:
-    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
-    state: present
-
-- name: Install Kubernetes
-  ansible.builtin.apt:
-    pkg:
-      - kubeadm
-      - kubelet
-      - kubectl
-    update_cache: true
-
-- name: Fix CRI error
-  ansible.builtin.file:
-    path: /etc/containerd/config.toml
-    state: absent
-
-- name: Restart containerd
-  ansible.builtin.service:
-    name: containerd
-    daemon_reload: true
-    state: restarted
-    enabled: true
-
-- name: Configure node ip
-  ansible.builtin.lineinfile:
-    path: /usr/bin/kubelet
-    line: KUBELET_EXTRA_ARGS=--node-ip={{ kubemaster_ip }}
-
-- name: Restart kubelet
-  ansible.builtin.service:
-    name: kubelet
-    daemon_reload: true
-    state: restarted
-    enabled: true
-
-- name: Initialize the Kubernetes cluster using kubeadm
-  ansible.builtin.command: kubeadm init --apiserver-advertise-address={{ kubemaster_ip }} --apiserver-cert-extra-sans={{ kubemaster_ip }} --node-name kubemaster --pod-network-cidr=192.168.0.0/16
-
-- name: Create .kube directory
-  ansible.builtin.file:
-    path: /home/vagrant/.kube
-    state: directory
-    mode: '0755'
-
-- name: Copy kube config to .kube
-  ansible.builtin.copy:
-    src: /etc/kubernetes/admin.conf
-    dest: /home/vagrant/.kube/config
-    remote_src: true
-
-- name: Recursively change ownership of .kube
-  ansible.builtin.file:
-    path: /home/vagrant/.kube
-    state: directory
-    recurse: yes
-    owner: vagrant
-    group: vagrant
-
-- name: Install calico pod network
-  become: false
-  ansible.builtin.command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
-
-- name: Install calico pod network part2
-  become: false
-  ansible.builtin.command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml
+- name: Calico setup
+  include_tasks: calico_setup.yml
 
 - name: Generate join command
   ansible.builtin.command: kubeadm token create --print-join-command

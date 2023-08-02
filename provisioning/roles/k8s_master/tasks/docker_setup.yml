@@ -1,0 +1,36 @@
+---
+- name: docker_setup | Docker dependencies Installation
+  ansible.builtin.apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - software-properties-common
+      - python3-pip
+      - virtualenv
+      - python3-setuptools
+    update_cache: true
+
+- name: docker_setup | Add Docker GPG key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: docker_setup | Add Docker repository
+  ansible.builtin.apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+    state: present
+
+- name: docker_setup | Update apt and install docker-ce
+  ansible.builtin.apt:
+    name: docker-ce
+    state: present
+    update_cache: true
+
+- name: docker_setup | Install Docker Module for Python
+  ansible.builtin.pip:
+    name: docker
+
+- name: docker_setup | Add vagrant user to docker group
+  ansible.builtin.user:
+    name: vagrant
+    group: docker

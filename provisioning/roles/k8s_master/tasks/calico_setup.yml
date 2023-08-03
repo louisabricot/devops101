@@ -5,6 +5,5 @@
   with_items:
     - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
     - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml
-  register: calico_status
-  failed_when: calico_status.rc != 0
-  changed_when: true
+  args:
+    creates: "./calico_is_installed"

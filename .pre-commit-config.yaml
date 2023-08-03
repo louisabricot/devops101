@@ -17,3 +17,9 @@ repos:
           - id: ansible-lint
             files: \.(yaml|yml)$
             entry: ansible-lint
+    - repo: https://github.com/Agilicus/pre-commit-hook-k8svalidate.git
+      rev: v0.0.8
+      hooks:
+          - id: k8svalidate
+            args: [--exclude, "**/*.patch.yaml"]
+            files: .yaml$

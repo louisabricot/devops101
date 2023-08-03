@@ -2,3 +2,4 @@ controller1_pubkey
 .vagrant
 .DS_Store
 provisioning/inventory.ini
+provisioning/join-command

@@ -145,8 +145,8 @@ kubeworker3 ansible_host=192.168.56.7
 Ansible roles organize and package automation tasks, variables, and configurations into a reusable unit. By breaking down the Kubernetes cluster setup into roles, it becomes easier to manage and update specific components or configurations independently, promoting consistency and simplifying deployment across different environments.
 
 To start, we define two roles, corresponding to our inventory groups:
-- *kubemaster* installs Docker, configure Kubernetes core components, Calico network, and generates the join command for worker nodes to join the cluster.
-- *kubeworker* installs Docker and joins the worker nodes to the Kubernetes cluster.
+- *k8s_master* installs Docker, configure Kubernetes core components, Calico network, and generates the join command for worker nodes to join the cluster.
+- *k8s_worker* installs Docker and joins the worker nodes to the Kubernetes cluster.
 
 ```markdown
 .
@@ -154,9 +154,9 @@ To start, we define two roles, corresponding to our inventory groups:
 ├── k8s_master
 └── k8s_worker
 ```
-The *common* directory will store tasks that are common to both *kubemaster* and *kubeworker* roles.
+The *common* directory will store tasks that are common to both *k8s_master* and *k8s_worker* roles.
 
-#### Kubemaster Role Structure:
+#### K8s_master Role Structure:
 
 We begin by generating the Kubemaster role using the ```ansible-galaxy init``` command, which sets up the following folder structure. We will add our tasks to the *tasks* directory.
 
@@ -184,7 +184,7 @@ The tasks/main.yml file orchestrates the different subtasks in the following ord
   include_tasks: join_command.yml
 ```
 
-#### Kubeworker role
+#### K8s_worker role
 
 ```markdown
 ---
@@ -204,6 +204,11 @@ The tasks/main.yml file orchestrates the different subtasks in the following ord
 - name: Join command
   include_tasks: join_command.yml
 ```
+
+#### Wordpress role
+
+Now that our worker nods have joined the Kubernetes cluster, we can add a second role to be performed by the kubeworker VMs
+
 
 ## Resources
 

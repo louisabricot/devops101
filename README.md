@@ -150,11 +150,11 @@ To start, we define two roles, corresponding to our inventory groups:
 
 ```markdown
 .
-├── common_tasks
+├── common
 ├── k8s_master
 └── k8s_worker
 ```
-The *common_tasks* directory will store tasks that are common to both kubemaster and kubeworker roles.
+The *common* directory will store tasks that are common to both *kubemaster* and *kubeworker* roles.
 
 #### Kubemaster Role Structure:
 

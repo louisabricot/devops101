@@ -2,68 +2,40 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-mysql-service
+  name: wordpress-mysql
   labels:
     app: wordpress
 spec:
-  type: ClusterIP
   ports:
     - port: 3306
   selector:
     app: wordpress
-    tier: backend
-  resources:
-    limits:
-      cpu: "500m"
-      memory: "512Mi"
-    requests:
-      cpu: "250m"
-      memory: "256Mi"
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mysql-pvc
-  labels:
-    app: wordpress
-spec:
-  selector:
-    matchLabels:
-      storage: mysql-storage
-  storageClassName: local-storage
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-
+    tier: mysql
+    clusterIP: None
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql-deployment
+  name: wordpress-mysql
   labels:
     app: wordpress
 spec:
-  replicas: 2
+  #replicas: 2
   selector:
     matchLabels:
       app: wordpress
-      tier: backend
+      tier: mysql
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
         app: wordpress
-        tier: backend
+        tier: mysql
     spec:
-      securityContext:
-        fsGroup: 2000
       containers:
         - name: mysql
-          image: mysql:8.1.0
-          imagePullPolicy: Always
+          image: mysql:8.0-debian
           env:
             - name: MYSQL_DATABASE
               valueFrom:
@@ -87,24 +59,10 @@ spec:
                   key: rootpass
           ports:
             - containerPort: 3306
+              name: mysql
           volumeMounts:
             - name: mysql-persistent-storage
               mountPath: /var/lib/mysql
-          resources:
-            limits:
-              cpu: "1"
-              memory: "1Gi"
-              ephemeral-storage: "1Gi"
-            requests:
-              cpu: "0.5"
-              memory: "512Mi"
-              ephemeral-storage: "512Mi"
-          readinessProbe:
-            exec:
-              command: ["mysql", "-h", "127.0.0.1", "-e", "SELECT 1"]
-            initialDelaySeconds: 5
-            periodSeconds: 2
-            timeoutSeconds: 1
       volumes:
         - name: mysql-persistent-storage
           persistentVolumeClaim:

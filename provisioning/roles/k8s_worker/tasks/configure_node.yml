@@ -4,6 +4,14 @@
     path: /usr/bin/kubelet
     line: KUBELET_EXTRA_ARGS=--node-ip={{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}
 
+- name: configure_node | Configure kubelet to use ansible host ip
+  ansible.builtin.template:
+    src: files/10-kubeadm.conf.j2
+    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+    owner: root
+    group: root
+    mode: '644'
+
 - name: configure_node | Restart kubelet
   ansible.builtin.service:
     name: kubelet

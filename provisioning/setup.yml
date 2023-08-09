@@ -2,7 +2,6 @@
   roles:
   - role: 'k8s_master'
   - role: 'wordpress_mysql'
-
 - hosts: [kubeworkers]
   roles:
   - role: 'k8s_worker'

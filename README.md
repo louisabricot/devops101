@@ -5,11 +5,12 @@
 1. [Prerequisites](#prerequisites)
 2. [Setting up the Development Environment](#setting-up-the-development-environment)
 3. [Automatically Creating Virtual Machines with Vagrant](#automatically-creating-virtual-machines-with-vagrant)
-3. [Configuring a Kubernetes Cluster with Ansible](#configuring-a-kubernetes-cluster-with-ansible)
+4. [Configuring a Kubernetes Cluster with Ansible](#configuring-a-kubernetes-cluster-with-ansible)
     - [Ansible Configuration File (ansible.cfg)](#ansible-configuration-file)
     - [Ansible Inventory File (inventory.ini)](#ansible-inventory-file)
     - [Utilizing Ansible Roles](#utilizing-ansible-roles)
-
+5. [Deploying Wordpress and MySQL with persistent volumes](#deploying-wordpress-and-mysql-with-persistent-volumes)
+6. [Resources](#resources)
 
 ## Prerequisites
 
@@ -103,6 +104,7 @@ node:
 ```ruby
 node.vm.synced_folder "./provisioning", "/home/vagrant/workstation"
 ```
+
 By synchronizing the "provisioning" directory with "/home/vagrant/workstation" on the controller node, we can easily access and manage our Ansible playbooks and configuration files.
 
 ## Configuring a Kubernetes cluster with Ansible
@@ -140,13 +142,16 @@ kubeworker2 ansible_host=192.168.56.6
 kubeworker3 ansible_host=192.168.56.7
 ```
 
+> :warning: The script to generate the inventory file is very basic: it only sets one kubemaster and does not check the value of the `NUM_NODES` value.
+
 ### Utilizing Ansible Roles
 
 Ansible roles organize and package automation tasks, variables, and configurations into a reusable unit. By breaking down the Kubernetes cluster setup into roles, it becomes easier to manage and update specific components or configurations independently, promoting consistency and simplifying deployment across different environments.
 
-To start, we define two roles, corresponding to our inventory groups:
-- *k8s_master* installs Docker, configure Kubernetes core components, Calico network, and generates the join command for worker nodes to join the cluster.
-- *k8s_worker* installs Docker and joins the worker nodes to the Kubernetes cluster.
+To start, we define three roles, corresponding to our inventory groups:
+- *k8s_master* installs Docker, configure Kubernetes core components, Calico network, and generates a token for workers to join the cluster.
+- *k8s_worker* installs Docker and joins the Kubernetes cluster.
+- the *common* directory will store tasks that are common to both *k8s_master* and *k8s_worker* roles.
 
 ```markdown
 .
@@ -154,13 +159,24 @@ To start, we define two roles, corresponding to our inventory groups:
 ├── k8s_master
 └── k8s_worker
 ```
-The *common* directory will store tasks that are common to both *k8s_master* and *k8s_worker* roles.
+#### Common
 
-#### K8s_master Role Structure:
+The *common* role's primary purpose is to encapsulate tasks that are common to both *k8s_master* and *k8s_worker*. Rather than replicating the same set of tasks in each individual role, *k8s_master* and *k8s_worker* can simply invoke the *common* role. This not only makes the automation process more modular but also enhances maintainability and adaptability.
 
-We begin by generating the Kubemaster role using the ```ansible-galaxy init``` command, which sets up the following folder structure. We will add our tasks to the *tasks* directory.
+##### Setting up Docker
 
-The tasks/main.yml file orchestrates the different subtasks in the following order:
+Docker is a pre-requisite for installing Kubernetes
+talk about containers
+
+##### Setting up Kubernetes
+
+talk about kubernetes
+
+talk about the CRI error with containerd 
+
+#### K8s_master role
+
+The *tasks/main.yml* file orchestrates the different subtasks in the following order:
 
 ```markdown
 ---
@@ -183,8 +199,22 @@ The tasks/main.yml file orchestrates the different subtasks in the following ord
 - name: Generate join command and copy to local file
   include_tasks: join_command.yml
 ```
+##### Initializing the Kubernetes cluster
 
+`KUBELET_EXTRA_ARGS=`
+`kubeadm init`
+
+##### Setting up the Calico network
+
+- what is Calico network
+
+##### Creating the join command
+
+- token
+  
 #### K8s_worker role
+
+Once the Kubernetes cluster is started, we can create our k8s_workers. To do so, the *tasks/main.yml* file orchestrates the different subtasks in the following order:
 
 ```markdown
 ---
@@ -205,7 +235,21 @@ The tasks/main.yml file orchestrates the different subtasks in the following ord
   include_tasks: join_command.yml
 ```
 
-#### Wordpress role
+As we previously explained, the first two tasks are common to the k8_master role.
+
+##### Configuring our worker node
+
+`kubelet KUBELET_EXTRA_ARGS`
+
+##### Joining the Kubernetes cluster
+
+`join_command.sh`
+
+To check that our workers have successfully joined the Kubernetes cluster we can run `kubectl get nodes` on the k8_master node:
+
+We are now ready to add another role to run Wordpress and MySQL in our cluster.
+
+### Deploying Wordpress and MySQL with persistent volumes
 
 Now that our worker nods have joined the Kubernetes cluster, we can add a second role to be performed by the kubeworker VMs
 

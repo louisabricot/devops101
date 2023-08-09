@@ -247,12 +247,21 @@ As we previously explained, the first two tasks are common to the k8_master role
 
 To check that our workers have successfully joined the Kubernetes cluster we can run `kubectl get nodes` on the k8_master node:
 
+![output of kubectl get nodes](assets/kubectl_get_nodes_output.png)
+
 We are now ready to add another role to run Wordpress and MySQL in our cluster.
 
 ### Deploying Wordpress and MySQL with persistent volumes
 
 Now that our worker nods have joined the Kubernetes cluster, we can add a second role to be performed by the kubeworker VMs
 
+#### Persistent volumes and claims
+
+#### Secrets and configmap
+
+#### MySQL service and deployment
+
+#### Wordpress service and deployment
 
 ## Resources
 

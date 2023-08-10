@@ -102,7 +102,7 @@ node:
 node.vm.synced_folder "./provisioning", "/home/vagrant/workstation"
 ```
 
-By synchronizing the "provisioning" directory with "/home/vagrant/workstation" on the controller node, we can easily access and manage our Ansible playbooks and configuration files.
+By synchronizing the *provisioning* directory with "/home/vagrant/workstation" on the controller node, we can easily access and manage our Ansible playbooks and configuration files.
 
 ## Configuring a Kubernetes cluster with Ansible
 
@@ -245,15 +245,29 @@ As we previously explained, the first two tasks are common to the k8_master role
 
 `join_command.sh`
 
-To check that our workers have successfully joined the Kubernetes cluster we can run `kubectl get nodes` on the k8_master node:
+To set up our Kubernetes cluster, we connect to our *AnsibleControlNode1* machine and run:
 
-![output of kubectl get nodes](assets/kubectl_get_nodes_output.png)
+```bash
+cd workstation
+ansible-playbook setup.yml
+```
+`ansible-playbook` implicitly takes the inventory file by resolving its location from the inventory_path variable set in the *ansible.cfg* configuration file. The *setup.yml* file shows the order in which our three roles must be applied.
+
+Once the configuration has ended, we can check that our Kubernetes cluster was successfully created by connecting to our master node and getting some information about our cluster:
+
+```bash
+ssh 192.168.56.4
+kubectl get nodes -o wide -n kube-system
+kubectl get nodes -o wide
+kubectl get pods
+kubectl get services
+```
 
 We are now ready to add another role to run Wordpress and MySQL in our cluster.
 
 ### Deploying Wordpress and MySQL with persistent volumes
 
-Now that our worker nods have joined the Kubernetes cluster, we can add a second role to be performed by the kubeworker VMs
+To deploy a Wordpress 
 
 #### Persistent volumes and claims
 
@@ -262,6 +276,3 @@ Now that our worker nods have joined the Kubernetes cluster, we can add a second
 #### MySQL service and deployment
 
 #### Wordpress service and deployment
-
-- [Vagrant for beginners, a tutorial](https://dev.to/kennibravo/vagrant-for-beginners-getting-started-with-examples-jlm)
-- [Setting a Kubernetes cluster with Ansible](https://vrukshalitorawane.medium.com/kubernetes-setup-with-wordpress-using-ansible-48dea03dc339)

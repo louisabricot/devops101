@@ -1,4 +1,4 @@
-NUM_NODES = 4
+NUM_NODES = 3
 NUM_CONTROLLER_NODE = 1
 IP_NTW = "192.168.56."
 CONTROLLER_IP_START = 2
@@ -9,14 +9,14 @@ Vagrant.configure("2") do |config|
 
   # Controller Nodes
   (1..NUM_CONTROLLER_NODE).each do |i|
-    config.vm.define "AnsibleControlNode#{i}" do |node|
+    config.vm.define "controller#{i}" do |node|
       node.vm.provider "virtualbox" do |vb|
-        vb.name = "AnsibleControlNode#{i}"
+        vb.name = "controller#{i}"
         vb.memory = 2048
         vb.cpus = 2
       end
 
-      node.vm.hostname = "AnsibleControlNode#{i}"
+      node.vm.hostname = "controller#{i}"
       node.vm.network "private_network", ip: "#{IP_NTW}#{CONTROLLER_IP_START + i}"
       node.vm.network "forwarded_port", guest: 22, host: "#{2710 + i}"
       node.vm.provision "shell", inline: <<-SHELL
@@ -33,7 +33,7 @@ Vagrant.configure("2") do |config|
         chown -R vagrant:vagrant /home/vagrant/.ssh
         chmod 700 /home/vagrant/.ssh
         chmod 600 /home/vagrant/.ssh/authorized_keys
-        cat /home/vagrant/.ssh/id_rsa.pub > /vagrant/AnsibleControlNode#{i}_pubkey
+        cat /home/vagrant/.ssh/id_rsa.pub > /vagrant/controller#{i}_pubkey
         systemctl restart sshd
 
         # Generate inventory file
@@ -56,22 +56,23 @@ Vagrant.configure("2") do |config|
 
   # Worker Nodes
   (1..NUM_NODES).each do |i|
-    config.vm.define "kubenode#{i}" do |node|
+    config.vm.define "worker#{i}" do |node|
       node.vm.provider "virtualbox" do |vb|
-        vb.name = "kubenode#{i}"
+        vb.name = "worker#{i}"
         vb.memory = 2048
         vb.cpus = 2
       end
 
-      node.vm.hostname = "kubenode#{i}"
+      node.vm.hostname = "worker#{i}"
       node.vm.network "private_network", ip: "#{IP_NTW}#{NODE_IP_START + i}"
       node.vm.network "forwarded_port", guest: 22, host: "#{2720 + i}"
+      node.vm.network "forwarded_port", guest: 80, host: "#{8080 + i}"
       node.vm.provision "shell", inline: <<-SHELL
         apt-get update
 
-        # Adds AnsibleControlNode public key to kubenode's authorized_keys
+        # Adds controller public key to worker's authorized_keys
         mkdir -p /home/vagrant/.ssh
-        cat /vagrant/AnsibleControlNode1_pubkey >> /home/vagrant/.ssh/authorized_keys
+        cat /vagrant/controller1_pubkey >> /home/vagrant/.ssh/authorized_keys
         chown -R vagrant:vagrant /home/vagrant/.ssh
         chmod 700 /home/vagrant/.ssh
         chmod 600 /home/vagrant/.ssh/authorized_keys

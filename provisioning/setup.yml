@@ -1,7 +1,15 @@
-- hosts: [kubemasters]
+---
+- name: Configure Kubernetes Master Nodes
+  hosts: [kubemasters]
   roles:
   - role: 'k8s_master'
-  - role: 'wordpress_mysql'
-- hosts: [kubeworkers]
+
+- name: Configure Kubernetes Worker Nodes
+  hosts: [kubeworkers]
   roles:
-  - role: 'k8s_worker'
+          #  - role: 'k8s_worker'
+
+- name: Deploy Wordpress and MySQL on Kubernetes Master Nodes
+  hosts: [kubemasters]
+  roles:
+          #- role: 'wordpress_mysql'

@@ -16,7 +16,7 @@
     kubeadm init
     --apiserver-advertise-address={{ ansible_ssh_host }}
     --apiserver-cert-extra-sans={{ ansible_ssh_host }}
-    --node-name kubemaster
+    --node-name {{ inventory_hostname }}
     --pod-network-cidr=192.168.0.0/16
   register: cluster_status
   until: cluster_status.rc == 0

@@ -37,7 +37,7 @@ spec:
           image: wordpress:php.8.0-apache
           env:
             - name: WORDPRESS_DB_HOST
-              value: mysql-service
+              value: wordpress-mysql
             - name: WORDPRESS_DB_NAME
               valueFrom:
                 configMapKeyRef:

@@ -1,4 +1,4 @@
-controller1_pubkey
+*_pubkey
 .vagrant
 .DS_Store
 provisioning/inventory.ini

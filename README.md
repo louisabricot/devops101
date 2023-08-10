@@ -10,23 +10,20 @@
     - [Ansible Inventory File (inventory.ini)](#ansible-inventory-file)
     - [Utilizing Ansible Roles](#utilizing-ansible-roles)
 5. [Deploying Wordpress and MySQL with persistent volumes](#deploying-wordpress-and-mysql-with-persistent-volumes)
-6. [Resources](#resources)
 
 ## Prerequisites
 
 Before proceeding with the setup, ensure you have the following prerequisites on your host machine:
-- **Vagrant** installed: Vagrant helps automate the creation and provisioning of virtual machines.
+- **Vagrant** installed, and
 - **VirtualBox** (or any other Vagrant provider) installed for virtualization capabilities.
 
 ## Setting up the development environment
 
 We used Vagrant to create our development environment for this project. Vagrant helps us automate the creation and provisioning of multiple virtual machines from one configuration file: the *Vagrantfile*.
 
-The overall architecture consists of our host machine and five VMs: one for the Ansible Controller Node and four for the Kubernetes cluster (one master and three workers).
-
 ### Architecture Overview
 
-The architecture of our setup involves the host machine and five virtual machines:
+The overall architecture consists of our host machine and five VMs: one for the Ansible Controller Node and four for the Kubernetes cluster:
 - Ansible Controller Node (1 VM)
 - Kubernetes Cluster (1 Master Node and 3 Worker Nodes)
 
@@ -142,16 +139,16 @@ kubeworker2 ansible_host=192.168.56.6
 kubeworker3 ansible_host=192.168.56.7
 ```
 
-> :warning: The script to generate the inventory file is very basic: it only sets one kubemaster and does not check the value of the `NUM_NODES` value.
+> :warning: The script to generate the inventory file is very basic: it only sets one kubemaster and does not check the value of the `NUM_NODES` variable.
 
 ### Utilizing Ansible Roles
 
 Ansible roles organize and package automation tasks, variables, and configurations into a reusable unit. By breaking down the Kubernetes cluster setup into roles, it becomes easier to manage and update specific components or configurations independently, promoting consistency and simplifying deployment across different environments.
 
 To start, we define three roles, corresponding to our inventory groups:
-- *k8s_master* installs Docker, configure Kubernetes core components, Calico network, and generates a token for workers to join the cluster.
-- *k8s_worker* installs Docker and joins the Kubernetes cluster.
-- the *common* directory will store tasks that are common to both *k8s_master* and *k8s_worker* roles.
+- *k8s_master* (corresponding to the kubemaster role) installs Docker, configures Kubernetes core components, Calico network, and generates a token for workers to join the cluster.
+- *k8s_worker* (corresponding to the kuberworker role) installs Docker and joins the Kubernetes cluster.
+- and finally, the *common* role stores tasks that are common to both *k8s_master* and *k8s_worker* roles.
 
 ```markdown
 .
@@ -161,7 +158,10 @@ To start, we define three roles, corresponding to our inventory groups:
 ```
 #### Common
 
-The *common* role's primary purpose is to encapsulate tasks that are common to both *k8s_master* and *k8s_worker*. Rather than replicating the same set of tasks in each individual role, *k8s_master* and *k8s_worker* can simply invoke the *common* role. This not only makes the automation process more modular but also enhances maintainability and adaptability.
+The *common* role's primary purpose is to encapsulate tasks that are common to both *k8s_master* and *k8s_worker*. 
+They share two steps: setting up Docker and Kubernetes.
+
+Rather than replicating the same set of tasks in each individual role, *k8s_master* and *k8s_worker* can simply invoke the *common* role. This not only makes the automation process more modular but also enhances maintainability and adaptability.
 
 ##### Setting up Docker
 
@@ -262,8 +262,6 @@ Now that our worker nods have joined the Kubernetes cluster, we can add a second
 #### MySQL service and deployment
 
 #### Wordpress service and deployment
-
-## Resources
 
 - [Vagrant for beginners, a tutorial](https://dev.to/kennibravo/vagrant-for-beginners-getting-started-with-examples-jlm)
 - [Setting a Kubernetes cluster with Ansible](https://vrukshalitorawane.medium.com/kubernetes-setup-with-wordpress-using-ansible-48dea03dc339)

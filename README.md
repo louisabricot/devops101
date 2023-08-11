@@ -245,13 +245,12 @@ As we previously explained, the first two tasks are common to the k8_master role
 
 `join_command.sh`
 
-To set up our Kubernetes cluster, we connect to our *AnsibleControlNode1* machine and run:
+To set up our Kubernetes cluster, we connect to our *controller1* machine and run:
 
 ```bash
 cd workstation
 ansible-playbook setup.yml
 ```
-`ansible-playbook` implicitly takes the inventory file by resolving its location from the inventory_path variable set in the *ansible.cfg* configuration file. The *setup.yml* file shows the order in which our three roles must be applied.
 
 Once the configuration has ended, we can check that our Kubernetes cluster was successfully created by connecting to our master node and getting some information about our cluster:
 

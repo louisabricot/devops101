@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
         - name: wordpress
-          image: wordpress:php.8.0-apache
+          image: wordpress:latest
           env:
             - name: WORDPRESS_DB_HOST
               value: wordpress-mysql

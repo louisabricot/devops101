@@ -165,11 +165,12 @@ Rather than replicating the same set of tasks in each individual role, *k8s_mast
 
 ##### Setting up Docker
 
+//TODO
 Docker is a pre-requisite for installing Kubernetes
 talk about containers
 
 ##### Setting up Kubernetes
-
+//TODO
 talk about kubernetes
 
 talk about the CRI error with containerd 
@@ -201,15 +202,18 @@ The *tasks/main.yml* file orchestrates the different subtasks in the following o
 ```
 ##### Initializing the Kubernetes cluster
 
+//TODO
 `KUBELET_EXTRA_ARGS=`
 `kubeadm init`
 
 ##### Setting up the Calico network
 
+//TODO
 - what is Calico network
 
 ##### Creating the join command
 
+//TODO
 - token
   
 #### K8s_worker role
@@ -266,8 +270,7 @@ We are now ready to add another role to run Wordpress and MySQL in our cluster.
 
 ### Deploying Wordpress and MySQL with persistent volumes
 
-To deploy a Wordpress 
-
+TODO
 #### Persistent volumes and claims
 
 #### Secrets and configmap
